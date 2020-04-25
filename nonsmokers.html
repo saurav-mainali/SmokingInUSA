@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.theme.min.css">
+    <!-- D3 Tooltip CSS -->
+    <link rel="stylesheet" href="css/d3-tip.css">
+    <!-- Custom styling -->
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+
+    <title>Smoking in USA - Non Smokers</title>
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', {packages: ['corechart']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+
+        function drawAllSheets(){
+            drawSheetName('AverageSmokingData','SELECT A,G',
+            averageNonSmokingDataResponseHandler);
+
+            drawSheetName('RegionSmokingData','SELECT A,I,J,K,L,M',
+            regionNonSmokingDataResponseHandler);
+
+            drawSheetName('RegionSmokingData','SELECT A,R,S',
+            subNonSmokingResponseHandler);
+
+
+        }//drawAllSheets
+
+
+        function drawSheetName(sheetName,query,responseHandler){
+            var queryString = encodeURIComponent(query);
+            var query = new google.visualization.Query(
+                "https://docs.google.com/spreadsheets/d/1Dycfv06ht8kgOKez6qMbw1kmeJKn1u7HP7nRYHvetBU/gviz/tq?sheet="+sheetName+"&headers=1&tq="+queryString);
+            query.send(responseHandler);
+        }//drawSheetName
+
+        
+        function averageNonSmokingDataResponseHandler(response){
+
+            var data = response.getDataTable();
+
+            var chart = new google.visualization.GeoChart(
+                document.getElementById("average_nonsmokers_div")
+            );
+
+            data.sort({column:1,desc:true});
+
+
+              /*formating*/
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:1,suffix:'%'
+            });
+            formatter.format(data,1); 
+
+            var options={
+                region:'US',
+                displayMode: 'regions',
+                colorAxis: {colors: ['black', 'orange']},
+      			resolution: 'provinces',
+                height:400
+
+            }
+
+            chart.draw(data,options)
+
+        }//averageNonSmokingDataResponseHandler
+
+        function regionNonSmokingDataResponseHandler(response){
+            var data = response.getDataTable();
+            data.sort({column:5,desc:true});
+
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:1,
+                suffix : " %"
+            });
+            formatter.format(data,1);
+            formatter.format(data,2);
+            formatter.format(data,3);
+            formatter.format(data,4);
+            formatter.format(data,5);
+
+            var options={height:400,vAxis:{title:'Percentage (%)'},hAxis:{title:'Region'}};
+
+            var chart =  new google.visualization.ColumnChart(document.getElementById("region_nonsmokers_div"));
+
+            chart.draw(data,options);
+
+        }//regionNonSmokingDataResponseHandler
+
+
+        function subNonSmokingResponseHandler(response){
+
+            var data = response.getDataTable();
+
+            var chart = new google.visualization.LineChart(
+                document.getElementById("sub_nonsmokers_div")
+            );
+
+            data.sort({column:1,desc:true});
+
+            /*formating*/
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:1,suffix:'%'
+            });
+            formatter.format(data,1); 
+            formatter.format(data,2); 
+
+            var options={
+                
+                height:350,
+                vAxis: {title: 'Percentage (%)'},
+                hAxis: {title: 'Region'}
+                
+
+            }
+
+            chart.draw(data,options)
+
+
+        }//subNonSmokingResponseHandler
+
+
+
+
+                
+    </script>
+
+
+
+</head>
+<body>
+    
+    <div id="main">
+        
+        <div id="header">
+            <div id="logo">
+                <span id="logo_text">Smoking in USA</span>
+            </div><!--logo-->
+
+            <div id="menubar">
+                <ul id="menu">
+                        <li><a href ="index.html">Home</a></li>
+                        <li><a href ="smokers.html" >Smokers</a></li>
+                        <li class="selected"><a href="nonsmokers.html">Non Smokers</a></li>                
+                </ul><!--menu-->
+            </div><!--menubar-->
+        </div><!--header-->
+
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <div style="clear:both" id="site_content">
+                <h2>Percentage of Adult Non-Smokers by State (2013 - 2017)</h2>
+                <br/>
+                <br/>
+                <select id="year-select" class="form-control" style="width: 10%; float: right;" >
+                    <option selected value="data/2013_filtered2.json">2013</option>
+                    <option value="data/2014_filtered2.json">2014</option>
+                    <option value="data/2015_filtered2.json">2015</option>
+                    <option value="data/2016_filtered2.json">2016</option>
+                    <option value="data/2017_filtered2.json">2017</option>
+                </select>
+                <div id='nonsmoking_chart_area' style="width:900px; height: 440px" class="graph"></div> 
+                <p class='texts'>For each year from 2013 to 2017, we can see that Utah had the highest percentage of adult non-smokers followed by California, whereas West Virginia and Kentucky had the least. As per 2017, only Utah and California met CDC's target of non-smokers i.e. 88% or over. Many other states are close to the target.</p>
+                <br/>
+                <h2>What was the average percentage of adult non-smokers in each state?</h2>               
+                <div id='average_nonsmokers_div' style="width:900px; height: 440px" class="graph"></div>
+                <p class="texts">Most states in the West and Southwest part had high percentage of adult non-smokers. On contrary, Southeast part of US and its bordering states had fewer non-smoking adults. </p> 
+                <br/>
+                <h2>Percentage of Adult Non-Smokers by Region (2013 - 2017)</h2>               
+                <div id='region_nonsmokers_div' style="width:900px; height: 440px" class="graph"></div>
+                <p class="texts">The bar chart above shows total percentage of adult non-smokers is in increasing trend in all regions of United States with few exceptions. For each year, Pacific region had the highest percentage of non-smokers and East South Central region had the lowest. Moreover, huge gap in percentage of non-smokers can be seen between the two extreme regions.</p> 
+                <br/>
+                <h2>On average, what percentage of American adults quit smoking/never smoked?</h2>                            
+                <div id='sub_nonsmokers_div' style="width:900px; height: 410px" class="graph"></div>
+                <p class="texts">Despite huge difference in percentage of smokers accross regions, percentage of adults who quit smoking (Former Smokers) was almost the same. We can also see more than 50% of adults in each region never smoked.</p> 
+                <br/>
+
+
+                
+
+        </div><!--site_content-->
+
+        <div style="clear:both;" id="footer">
+            Copyright &copy; 
+            <script>
+                var d = new Date();
+                document.write(d.getFullYear());
+            </script>
+            | <span>Mainali Saurav</span>
+
+        </div><!--footer-->
+
+    </div>
+<!-- External JS libraries -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/d3.min.js"></script>
+<script src="js/d3-tip.js"></script>
+
+<!-- Custom JS -->
+<script src="js/nonsmokers.js"></script>
+
+</body>
+</html>

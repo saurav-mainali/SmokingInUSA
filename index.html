@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.theme.min.css">
+    <!-- D3 Tooltip CSS -->
+    <link rel="stylesheet" href="css/d3-tip.css">
+    <!-- Custom styling -->
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <title>Smoking in USA - Home</title>
+
+    
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', {packages: ['corechart']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+
+        function drawAllSheets(){
+            drawSheetName('WorldSmokingData','SELECT A,B',
+            worldSmokingDataResponseHandler);
+
+            drawSheetName('RegionSmokingData','SELECT A,B,F',
+            regionSmokingDataChangesResponseHandler);
+
+            drawSheetName('AverageSmokingData','SELECT A,B',
+            dailySmokingDataResponseHandler);
+
+            drawSheetName('RegionSmokingData','SELECT A,V,W',
+            regionCorrelation1ResponseHandler);
+
+
+        }//drawAllSheets
+
+
+        function drawSheetName(sheetName,query,responseHandler){
+            var queryString = encodeURIComponent(query);
+            var query = new google.visualization.Query(
+                "https://docs.google.com/spreadsheets/d/1Dycfv06ht8kgOKez6qMbw1kmeJKn1u7HP7nRYHvetBU/gviz/tq?sheet="+sheetName+"&headers=1&tq="+queryString);
+            query.send(responseHandler);
+        }//drawSheetName
+
+
+        function worldSmokingDataResponseHandler(response){
+
+            var data = response.getDataTable();
+
+            var chart = new google.visualization.GeoChart(
+                document.getElementById("world_smoking_div")
+            );
+
+            data.sort({column:1,desc:true});
+
+              /*formating*/
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:2,suffix:'%'
+            });
+            formatter.format(data,1); 
+
+            var options={
+                height:400,
+                colorAxis: {colors: ['orange', 'black']},
+
+            }
+
+            chart.draw(data,options)
+
+        }//worldSmokingDataResponseHandler
+
+
+        function regionSmokingDataChangesResponseHandler(response){
+
+            var data = response.getDataTable();
+            var chart = new google.visualization.SteppedAreaChart(
+                document.getElementById("change_smoking_div")
+            );
+            data.sort({column:2,desc:true});
+            /*formating*/
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:1,suffix:'%'
+            });
+            formatter.format(data,1);
+            formatter.format(data,2);
+            var options={
+                height:400,
+                vAxis: {title: 'Total adult smokers (%)'},
+                hAxis: {title: 'Region'}
+            }
+            chart.draw(data,options)
+
+        }//regionSmokingDataChangesResponseHandler
+
+        function dailySmokingDataResponseHandler(response){
+
+            var data = response.getDataTable();
+
+            var chart = new google.visualization.GeoChart(
+                document.getElementById("daily_smokers_div")
+            );
+
+            data.sort({column:1,desc:true});
+
+
+            /*formating*/
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:1,suffix:'%'
+            });
+            formatter.format(data,1); 
+
+            var options={
+                region:'US',
+                displayMode: 'regions',
+                resolution: 'provinces',
+                height:400,
+                colorAxis: {colors: ['pink', 'black']},
+            }
+
+            chart.draw(data,options)
+
+        }//dailySmokingDataResponseHandler
+
+        function regionCorrelation1ResponseHandler(response){
+
+            var data = response.getDataTable();
+
+            var chart = new google.visualization.BubbleChart(
+                document.getElementById("correlation1_div")
+            );
+
+            data.sort({column:2,desc:true});
+
+
+            /*formating*/
+            var formatter = new google.visualization.NumberFormat({
+                fractionDigits:1,suffix:'%'
+            });
+            formatter.format(data,1); 
+            formatter.format(data,2); 
+
+
+            var options={
+   
+                height:400,
+                hAxis: {title: 'Everyday Smokers (%)'},
+                vAxis: {title: 'Total Smokers (%) '},
+        
+            }
+
+            chart.draw(data,options)
+
+        }//regionCorrelation1ResponseHandler
+
+       
+                
+    </script>
+
+
+
+</head>
+<body>
+    
+    <div id="main">
+        
+        <div id="header">
+            <div id="logo">
+                <span id="logo_text">Smoking in USA</span>
+            </div><!--logo-->
+
+            <div id="menubar">
+                <ul id="menu">
+                        <li class="selected"><a href ="index.html">Home</a></li>
+                        <li><a href ="smokers.html" >Smokers</a></li>
+                        <li><a href="nonsmokers.html">Non Smokers</a></li>                
+                </ul><!--menu-->
+            </div><!--menubar-->
+        </div><!--header-->
+
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <div style="clear:both" id="site_content">
+                <h2>Introduction</h2>
+                <br/>
+                <br/>
+                <p class='texts'>Accourding to World Health Organization, tobacco epidemic kills life of 8 million people every year. About 85% of those people are direct tobacco uses whereas the rest are non-smokers who are exposed to second hand smoking.  </p>
+                
+                <br/>
+                <br/>
+                <div id='world_smoking_div' style="width:900px; height: 460px" class="graph"></div> 
+                <p class="texts">The world map above shows percentage of adult smokers around the globe as per 2020. United States has low percentage(17.25%) of adult smokers as compared to counties like Greece, Serbia, Russia and Indonesia. However, it is above the target of 12% set by national public health institute of the United States - Centers for Disease Control and Prevention(CDC). </p>
+                <br/>
+                <p class="texts">This project highlights smoking behaviour across all states and regions of United States from the year 2013 to 2017. These facts could guide associated agencies take necessary steps which gradually declines smoking habit in the country. </p>
+                <br/>
+               
+                <h2>Is there correlation between Everyday Smokers and Total Smokers?</h2>               
+                <div id='correlation1_div' style="width:900px; height: 440px" class="graph"></div>
+                
+                <p class="texts">From the chart above we can infer that percentage of adults who dont smoke everyday i.e. (Total Smokers - Everyday Smokers) is almost constant in all the regions. Moreover the value is small. Everyday Smokers contribute a bigger portion of Total Smokers and are directly correlated. Hence, daily smokers could be targeted to drop the smoking rate in United States.   </p> 
+                
+                <br/>
+                <h2>On average what percentage of American adults smoke daily?</h2>               
+                <div id='daily_smokers_div' style="width:900px; height: 440px" class="graph"></div>
+                <p class="texts">In the US map above we can see that West Virginia had the highest percentage of Everyday Smokers on average from 2013 - 2017 which was followed by Kentucky. Utah on the other hand had the least percentage of smokers.</p> 
+                
+                <br/>
+                
+                <h2>How did the adult smoking trend change over the years (2013-2017) in USA?</h2>               
+                <div id='change_smoking_div' style="width:900px; height: 440px" class="graph"></div>
+                <p class="texts">Over the five year period it can be seen that every region had significant decline in total percentage of adult smokers. South Atlantic had the biggest drop whereas Pacific had the least.</p> 
+                <br/>
+                <br>
+
+        </div><!--site_content-->
+
+        <div style="clear:both" id="footer">
+            Copyright &copy; 
+            <script>
+                var d = new Date();
+                document.write(d.getFullYear());
+            </script>
+            | <span>Mainali Saurav</span>
+
+        </div><!--footer-->
+
+    </div>
+
+    <!-- External JS libraries -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/d3.min.js"></script>
+<script src="js/d3-tip.js"></script>
+
+</body>
+</html>
